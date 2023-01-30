@@ -1,20 +1,84 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from "react";
+import { StyleSheet, FlatList, View, Button } from "react-native";
+import { StatusBar } from "expo-status-bar";
+
+import TachesItem from "./components/TachesItem";
+import TachesInput from "./components/TachesInput";
 
 export default function App() {
+  const [modalIsVisible, setModalIsVisible] = useState(false);
+  const [taches, setTaches] = useState([]);
+
+  function startAddGoalHandler() {
+    setModalIsVisible(true);
+  }
+
+  function endAddGoalHandler() {
+    setModalIsVisible(false);
+  }
+
+  function ajouterTacheHandler(tache) {
+    if (tache.length === 0) {
+      alert("Veuillez entrer une tâche");
+      return;
+    } else {
+      setTaches((tacheAjoutée) => [
+        ...tacheAjoutée,
+        { text: tache, id: Math.random().toString() },
+      ]);
+    }
+    endAddGoalHandler();
+  }
+
+  function supprimerTacheHandler(id) {
+    setTaches((tacheSupprimée) => {
+      return tacheSupprimée.filter((tache) => tache.id !== id);
+    });
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style="light" />
+      <View style={styles.container}>
+        <Button
+          title="Ajouter une tâche"
+          color="#a065ec"
+          onPress={startAddGoalHandler}
+        />
+        <TachesInput
+          showModal={modalIsVisible}
+          onAjouterTache={ajouterTacheHandler}
+          onCancel={endAddGoalHandler}
+        />
+        <View style={styles.goalsContainer}>
+          <FlatList
+            data={taches}
+            renderItem={(itemData) => {
+              return (
+                <TachesItem
+                  text={itemData.item.text}
+                  id={itemData.item.id}
+                  onDeleteItem={supprimerTacheHandler}
+                />
+              );
+            }}
+            alwaysBounceVertical={false}
+          />
+        </View>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: 50,
+    paddingHorizontal: 16,
+    backgroundColor: "#1e085a",
+  },
+
+  goalsContainer: {
+    flex: 5,
   },
 });
